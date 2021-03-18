@@ -7,8 +7,6 @@ class Dataset(object):
         self._dataset = read_csv(dataset).rename(columns={u_field: 'user_id', i_field: 'item_id', r_field: 'rating', t_field: 'timestamp'})[['user_id', 'item_id', 'rating', 'timestamp']]
         self._train = None
         self._test = None
-        self._dataset['u_cat'] = self._dataset.user_id.astype('category').cat.codes.values
-        self._dataset['i_cat'] = self._dataset.item_id.astype('category').cat.codes.values
 
     def filter_data(self, thres):
         result = self._dataset.copy()
@@ -18,11 +16,11 @@ class Dataset(object):
             result = result[result.groupby('user_id').user_id.transform(len) >= thres]
             result = result[result.groupby('item_id').item_id.transform(len) >= thres]
         self._dataset = result
-        self._dataset['u_cat'] = self._dataset.user_id.astype('category').cat.codes.values
-        self._dataset['i_cat'] = self._dataset.item_id.astype('category').cat.codes.values
 
 
     def prepare_input(self):
+        self._dataset['u_cat'] = self._dataset.user_id.astype('category').cat.codes.values
+        self._dataset['i_cat'] = self._dataset.item_id.astype('category').cat.codes.values
         # self._user = DataFrame(self._dataset['user_id'])
         # self._item = DataFrame(self._dataset['item_id'])
         n_u = len(self._dataset.u_cat.unique())
@@ -41,6 +39,7 @@ class Dataset(object):
         # self._item = self._item.drop_duplicates(subset=['item_id'], ignore_index=True)
         self._dataset['user_data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
         self._dataset['item_data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
+        self._dataset = self._dataset.drop(columns=['u_cat', 'i_cat'])
         
     def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
