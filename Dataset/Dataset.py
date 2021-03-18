@@ -35,8 +35,8 @@ class Dataset(object):
             return [v for _ in x.to_numpy()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
-        self._user['data'] = df.groupby('u_cat').i_cat.transform(prepare_user)
-        self._item['data'] = df.groupby('i_cat').u_cat.transform(prepare_item)
+        self._user['data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
+        self._item['data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
         self._user = self._user.drop_duplicates(subset=['user_id'], ignore_index=True)
         self._item = self._item.drop_duplicates(subset=['item_id'], ignore_index=True)
         
