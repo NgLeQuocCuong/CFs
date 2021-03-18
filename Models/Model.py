@@ -4,8 +4,8 @@ class CFs():
 
     def model_info(self):
         if self.model:
-        self.model.summary()
-        return tf.keras.utils.plot_model(self.model, to_file='model.png')
+            self.model.summary()
+            return tf.keras.utils.plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10):
         history = self.model.fit(inputs, label, epochs=epochs, verbose=1)
