@@ -32,7 +32,7 @@ class Dataset(object):
             for i in group.to_list():
                 dictionary[i] = True
             v = [1 if _ in dictionary else 0 for _ in range(n)]
-            return [v for _ in x.to_numpy()]
+            return [v for _ in group.to_list()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
         self._user['data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
