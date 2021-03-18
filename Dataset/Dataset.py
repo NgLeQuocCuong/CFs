@@ -7,8 +7,8 @@ class Dataset(object):
         self._dataset = read_csv(dataset).rename(columns={u_field: 'user_id', i_field: 'item_id', r_field: 'rating', t_field: 'timestamp'})
         self._train = None
         self._test = None
-        self._dataset.user_cat = self._dataset.user_id.astype('category').cat.codes.values
-        self._dataset.item_cat = self._dataset.item_id.astype('category').cat.codes.values
+        self._dataset['user_cat'] = self._dataset.user_id.astype('category').cat.codes.values
+        self._dataset['item_cat'] = self._dataset.item_id.astype('category').cat.codes.values
 
     def filter_data(self, thres):
         result = self._dataset.copy()
@@ -18,8 +18,8 @@ class Dataset(object):
             result = result[result.groupby('user_id').user_id.transform(len) >= thres]
             result = result[result.groupby('item_id').item_id.transform(len) >= thres]
         self._dataset = result
-        self._dataset.user_cat = self._dataset.user_id.astype('category').cat.codes.values
-        self._dataset.item_cat = self._dataset.item_id.astype('category').cat.codes.values
+        self._dataset['user_cat'] = self._dataset.user_id.astype('category').cat.codes.values
+        self._dataset['item_cat'] = self._dataset.item_id.astype('category').cat.codes.values
 
 
     def prepare_input(self):
