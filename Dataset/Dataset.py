@@ -23,8 +23,8 @@ class Dataset(object):
 
 
     def prepare_input(self):
-        self._user = DataFrame(self._dataset['user_id'])
-        self._item = DataFrame(self._dataset['item_id'])
+        # self._user = DataFrame(self._dataset['user_id'])
+        # self._item = DataFrame(self._dataset['item_id'])
         n_u = len(self._dataset.u_cat.unique())
         n_i = len(self._dataset.i_cat.unique())
         def fn(group, n):
@@ -35,10 +35,12 @@ class Dataset(object):
             return [v for _ in group.to_list()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
-        self._user['data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
-        self._item['data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
-        self._user = self._user.drop_duplicates(subset=['user_id'], ignore_index=True)
-        self._item = self._item.drop_duplicates(subset=['item_id'], ignore_index=True)
+        # self._user['data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
+        # self._item['data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
+        # self._user = self._user.drop_duplicates(subset=['user_id'], ignore_index=True)
+        # self._item = self._item.drop_duplicates(subset=['item_id'], ignore_index=True)
+        self._dataset['user_data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
+        self._dataset['item_data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
         
     def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
@@ -47,8 +49,11 @@ class Dataset(object):
             self._train = self._dataset[self._dataset.groupby('user_id').timestamp.transform(max) != self._dataset['timestamp']]
             self._test = self._dataset[self._dataset.groupby('user_id').timestamp.transform(max) == self._dataset['timestamp']]
 
-    def get_users(self):
-        return self._user
+    # def get_users(self):
+    #     return self._user
 
-    def get_items(self):
-        return self._item
+    # def get_items(self):
+    #     return self._item
+
+    def get_dataset(self):
+        return self._dataset
