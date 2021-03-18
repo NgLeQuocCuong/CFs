@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 class Dataset(object):
     def __init__(self, dataset, u_field='user_id', i_field='item_id', r_field='rating', t_field='timestampe'):
-        self._dataset = read_csv(dataset).rename(columns={u_field: 'user_id', i_field: 'item_id', r_field: 'rating', t_field: 'timestamp'})
+        self._dataset = read_csv(dataset).rename(columns={u_field: 'user_id', i_field: 'item_id', r_field: 'rating', t_field: 'timestamp'})[['user_id', 'item_id', 'rating', 'timestamp']]
         self._train = None
         self._test = None
         self._dataset['u_cat'] = self._dataset.user_id.astype('category').cat.codes.values

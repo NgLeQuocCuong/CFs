@@ -17,7 +17,7 @@ class CFs():
         plt.ylabel("Training Error")
 
     def test(self, inputs, label):
-        self.model.evaluate(inputs, label, self._test.rating, batch_size=1)
+        self.model.evaluate(inputs, label, batch_size=1)
 
 class GMF(CFs):
     def create_model(self, n_user, n_item, n_factors = 16):
