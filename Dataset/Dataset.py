@@ -31,7 +31,7 @@ class Dataset(object):
             dictionary = {}
             for i in group.to_list():
                 dictionary[i] = True
-            v = [1 if _ in d else 0 for _ in range(n)]
+            v = [1 if _ in dictionary else 0 for _ in range(n)]
             return [v for _ in x.to_numpy()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
