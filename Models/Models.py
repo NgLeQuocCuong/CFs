@@ -22,8 +22,8 @@ class CFs():
         self.model.evaluate(inputs, label, batch_size=1)
 
     def _create_inputs(self, user_size, item_size):
-        u_input = Input(shape=[n_item])
-        i_input = Input(shape=[n_user])
+        u_input = Input(shape=[user_size])
+        i_input = Input(shape=[item_size])
         return [u_input, i_input]
 
     def _create_mlp(self, input, layers_size=[], dropout=0, activation='relu'):
