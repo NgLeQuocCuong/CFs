@@ -65,7 +65,7 @@ class DeepCF(CFs):
     def _create_matchingfunction_model(self, inputs, embedding_size=16, matching_layers = [32], activation='relu'):
         user_latent_factor = Dense(embedding_size, activation=activation)(inputs[0])
         item_latent_factor = Dense(embedding_size, activation=activation)(inputs[1])
-        concat = Concatenate()[user_latent_factor, item_latent_factor]
+        concat = Concatenate()([user_latent_factor, item_latent_factor])
         return self._create_mlp(input, matching_layers, dropout=0.1)
 
 
