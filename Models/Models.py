@@ -31,22 +31,6 @@ class CFs():
         return reduce(lambda last, current: Dropout(dropout)(current(last)) if dropout else current(last) , layers, input)
 
 
-class GMF(CFs):
-    def create_model(self, n_user, n_item, n_factors=16):
-        u_input = Input(shape=[n_item])
-        u_embedding = keras.layers.Embedding(n_item, n_latent_factors)(u_input)
-        u_vec = keras.layers.Flatten(name='Flatten_'+names[0])(u_embedding)
-
-        i_input = Input(shape=[n_user])
-        i_embedding = keras.layers.Embedding(n_user, n_latent_factors)(i_input)
-        i_vec = keras.layers.Flatten(name='Flatten_'+names[1])(i_embedding)
-        Multiply = Multiply()([u_vec, i_vec])
-        output = Dense(1)(Multiply)
-        self.model = Model([u_input, i_input], output, name='GMF')
-        self.model.compile(optimizer='adam', loss='mse',
-                           metrics=[RootMeanSquaredError()])
-
-
 class DeepCF(CFs):
     def create_model(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
         inputs = self._create_inputs(user_size, item_size)
