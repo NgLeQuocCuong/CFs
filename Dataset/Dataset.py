@@ -1,6 +1,7 @@
 from pandas import read_csv, DataFrame
 from sklearn.model_selection import train_test_split
 import numpy as np
+from tensorflow import convert_to_tensor
 
 
 class Dataset(object):
@@ -28,8 +29,7 @@ class Dataset(object):
             dictionary = {}
             for i in group.to_list():
                 dictionary[i] = True
-            v = np.array([1 if _ in dictionary else 0 for _ in range(n)])
-            v = np.asarray(v).astype(np.float32)
+            v = convert_to_tensor([1 if _ in dictionary else 0 for _ in range(n)])
             return [v for _ in group.to_list()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
