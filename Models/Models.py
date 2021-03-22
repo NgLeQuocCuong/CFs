@@ -50,6 +50,6 @@ class DeepCF(CFs):
         user_latent_factor = Dense(embedding_size, activation=activation)(inputs[0])
         item_latent_factor = Dense(embedding_size, activation=activation)(inputs[1])
         concat = Concatenate()([user_latent_factor, item_latent_factor])
-        return self._create_mlp(input, matching_layers, dropout=0.1)
+        return self._create_mlp(concat, matching_layers, dropout=0.1)
 
 
