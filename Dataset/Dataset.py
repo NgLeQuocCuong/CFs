@@ -1,5 +1,6 @@
 from pandas import read_csv, DataFrame
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 
 class Dataset(object):
@@ -27,7 +28,9 @@ class Dataset(object):
             dictionary = {}
             for i in group.to_list():
                 dictionary[i] = True
-            v = [1 if _ in dictionary else 0 for _ in range(n)]
+            idx = np.arange(n)
+            v = np.where(idx in dictionary, 1, 0)
+            # v = [1 if _ in dictionary else 0 for _ in range(n)]
             return [v for _ in group.to_list()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
