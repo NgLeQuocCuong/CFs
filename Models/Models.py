@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate
+from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout
 from tensorflow.keras import Model
 from tensorflow.keras.metrics import RootMeanSquaredError
 from functools import reduce
@@ -27,8 +27,8 @@ class CFs():
         return [u_input, i_input]
 
     def _create_mlp(self, input, layers_size=[], dropout=0, activation='relu'):
-        layers = [keras.layers.Dense(size, activation=activation) for size in layers_size]
-        return reduce(lambda last, current: keras.layers.Dropout(dropout)(current(last)) if dropout else current(last) , layers, input)
+        layers = [Dense(size, activation=activation) for size in layers_size]
+        return reduce(lambda last, current: Dropout(dropout)(current(last)) if dropout else current(last) , layers, input)
 
 
 class GMF(CFs):
