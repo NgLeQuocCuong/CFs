@@ -36,7 +36,7 @@ class DeepCF(CFs):
         inputs = self._create_inputs(user_size, item_size)
         representation_model = self._create_representation_model(inputs, representation_layers, activation)
         matchingfunction_model = self._create_matchingfunction_model(inputs, embedding_size,  matching_layers, activation)
-        fusion_layer = Concatenate()([representation_model, matching_layers])
+        fusion_layer = Concatenate()([representation_model, matchingfunction_model])
         output = Dense(1, activation=activation)(fusion_layer)
         self.model = Model(inputs, output, name='DeepCF')
         self.model.compile(optimizer='adam', loss='mse', metrics=[RootMeanSquaredError()])
