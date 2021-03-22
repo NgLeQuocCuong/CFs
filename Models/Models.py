@@ -58,8 +58,8 @@ class DeepCF(CFs):
         self.model.compile(optimizer='adam', loss='mse', metrics=[RootMeanSquaredError()])
         
     def _create_representation_model(self, inputs, representation_layers, activation='relu'):
-        user_latent_factor = self.create_mlp(inputs[0], representation_layers, dropout=0.1)
-        item_latent_factor = self.create_mlp(inputs[1], representation_layers, dropout=0.1)
+        user_latent_factor = self._create_mlp(inputs[0], representation_layers, dropout=0.1)
+        item_latent_factor = self._create_mlp(inputs[1], representation_layers, dropout=0.1)
         return Multiply()([user_latent_factor, item_latent_factor])
 
     def _create_matchingfunction_model(self, inputs, embedding_size=16, matching_layers = [32], activation='relu'):
