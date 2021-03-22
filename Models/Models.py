@@ -1,6 +1,7 @@
 from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout
 from tensorflow.keras import Model
 from tensorflow.keras.metrics import RootMeanSquaredError
+from tensorflow.keras.utils import plot_model
 from functools import reduce
 
 class CFs():
@@ -10,7 +11,7 @@ class CFs():
     def model_info(self):
         if self.model:
             self.model.summary()
-            return tf.keras.utils.plot_model(self.model, to_file='model.png')
+            return plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10):
         history = self.model.fit(inputs, label, epochs=epochs, verbose=1)
