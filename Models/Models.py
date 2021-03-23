@@ -1,11 +1,10 @@
-from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout
+from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout, Layer
 from tensorflow.keras import Model
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.utils import plot_model
 from functools import reduce
 from pandas import Series
 import matplotlib.pyplot as plt
-
 class CFs():
     def __init__(self):
         self.model = None
