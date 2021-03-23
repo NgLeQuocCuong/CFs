@@ -25,13 +25,14 @@ class Dataset(object):
         self.dataset['i_cat'] = self.dataset.item_id.astype('category').cat.codes.values
         n_u = len(self.dataset.u_cat.unique())
         n_i = len(self.dataset.i_cat.unique())
-        user_size = self.dataset.groupby('user_id').user_id.transform(len).max()
-        item_size = self.dataset.groupby('item_id').item_id.transform(len).max()
-        def fn(group, size):
-            v = group.to_list() + [-1 for _ in range(size-len(group.to_list()))]
+        def fn(group, n):
+            dictionary = {}
+            for i in group.to_list():
+                dictionary[i] = True
+            v = [1 if _ in dictionary else 0 for _ in range(n)]
             return [v for _ in group.to_list()]
-        prepare_user = lambda x: fn(x, user_size)
-        prepare_item = lambda x: fn(x, item_size)
+        prepare_user = lambda x: fn(x, n_i)
+        prepare_item = lambda x: fn(x, n_u)
         user_data = self.dataset.groupby('u_cat').i_cat.transform(prepare_user)
         item_data = self.dataset.groupby('i_cat').u_cat.transform(prepare_item)
         self.dataset = self.dataset.drop(columns=['u_cat', 'i_cat'])
