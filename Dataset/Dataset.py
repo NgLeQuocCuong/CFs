@@ -52,3 +52,9 @@ class Dataset(object):
 
     def get_dataset(self):
         return self._dataset
+
+    def get_train_data(self):
+        return [np.array(self._train['user_data'].to_list()), np.array(self._train['item_data'].to_list())]
+
+    def get_train_label(self):
+        return self._train['rating'].to_numpy()
