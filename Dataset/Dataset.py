@@ -33,9 +33,10 @@ class Dataset(object):
             return [v for _ in group.to_list()]
         prepare_user = lambda x: fn(x, n_i)
         prepare_item = lambda x: fn(x, n_u)
-        self._dataset['user_data'] = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
-        self._dataset['item_data'] = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
+        user_data = self._dataset.groupby('u_cat').i_cat.transform(prepare_user)
+        item_data = self._dataset.groupby('i_cat').u_cat.transform(prepare_item)
         self._dataset = self._dataset.drop(columns=['u_cat', 'i_cat'])
+        return [np.array(user_data.to_list()), np.array(item_data.to_list())]
         
     def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
@@ -52,9 +53,3 @@ class Dataset(object):
 
     def get_dataset(self):
         return self._dataset
-
-    def get_train_data(self):
-        return [np.array(self._train['user_data'].to_list()), np.array(self._train['item_data'].to_list())]
-
-    def get_train_label(self):
-        return self._train['rating'].to_numpy()
