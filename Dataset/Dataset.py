@@ -53,3 +53,6 @@ class Dataset(object):
 
     def get_dataset(self):
         return self._dataset
+
+    def get_train_label(self):
+        return self._train['rating'].to_numpy()
