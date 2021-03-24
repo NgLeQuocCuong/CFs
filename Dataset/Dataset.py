@@ -20,30 +20,33 @@ class Dataset(object):
         self.dataset = result
 
 
-    def prepare_input(self):
-        self.dataset['u_cat'] = self.dataset.user_id.astype('category').cat.codes.values
-        self.dataset['i_cat'] = self.dataset.item_id.astype('category').cat.codes.values
-        n_u = len(self.dataset.u_cat.unique())
-        n_i = len(self.dataset.i_cat.unique())
-        def fn(group, n):
-            dictionary = {}
-            for i in group.to_list():
-                dictionary[i] = True
-            v = [1 if _ in dictionary else 0 for _ in range(n)]
-            return [v for _ in group.to_list()]
-        prepare_user = lambda x: fn(x, n_i)
-        prepare_item = lambda x: fn(x, n_u)
-        user_data = self.dataset.groupby('u_cat').i_cat.transform(prepare_user)
-        item_data = self.dataset.groupby('i_cat').u_cat.transform(prepare_item)
-        self.dataset = self.dataset.drop(columns=['u_cat', 'i_cat'])
-        return [np.array(user_data.to_list()), np.array(item_data.to_list())]
+    def prepare_user_input(self):
+        self._train['i_cat'] = self._train.item_id.astype('category').cat.codes.values
+        n_i = len(self._train.i_cat.unique())
+        data = self._train[['user_id']].drop_duplicates(subset=['user_id'], ignore_index=True)
+        def prepare(uid, df, n):
+          lst = df[df['user_id'] == uid].i_cat.to_list()
+          return np.array([1 if _ in lst else 0 for _ in range(n)])
+        data['data'] = data.user_id.apply(prepare, args=(self._train, n_i))
+        return data
+
+  def prepare_item_input(self):
+        self._train['u_cat'] = self._train.user_id.astype('category').cat.codes.values
+        n_u = len(self._train.u_cat.unique())
+        data = self._train[['item_id']].drop_duplicates(subset=['item_id'], ignore_index=True)
+        def prepare(uid, df, n):
+          lst = df[df['item_id'] == uid].u_cat.to_list()
+          return np.array([1 if _ in lst else 0 for _ in range(n)])
+        data['data'] = data.item_id.apply(prepare, args=(self._train, n_u))
+        return data
         
-    def prepare_train_test(self, by_last_rate=True, test_rate=None):
+  def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
             self._train, self._test = train_test_split(self.dataset, test_size=test_rate)
         elif by_last_rate:
             self._train = self.dataset[self.dataset.groupby('user_id').timestamp.transform(max) != self.dataset['timestamp']]
             self._test = self.dataset[self.dataset.groupby('user_id').timestamp.transform(max) == self.dataset['timestamp']]
+        self.dataset = None
 
     def get_trainset(self):
         return self._train
