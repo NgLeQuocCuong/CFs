@@ -28,9 +28,9 @@ class Dataset(object):
           lst = df[df['user_id'] == uid].i_cat.to_list()
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.user_id.apply(prepare, args=(self._train, n_i))
-        return data
+        self._user_input = data
 
-  def prepare_item_input(self):
+    def prepare_item_input(self):
         self._train['u_cat'] = self._train.user_id.astype('category').cat.codes.values
         n_u = len(self._train.u_cat.unique())
         data = self._train[['item_id']].drop_duplicates(subset=['item_id'], ignore_index=True)
@@ -38,9 +38,9 @@ class Dataset(object):
           lst = df[df['item_id'] == uid].u_cat.to_list()
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.item_id.apply(prepare, args=(self._train, n_u))
-        return data
-        
-  def prepare_train_test(self, by_last_rate=True, test_rate=None):
+        self._item_input = data
+
+    def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
             self._train, self._test = train_test_split(self.dataset, test_size=test_rate)
         elif by_last_rate:
