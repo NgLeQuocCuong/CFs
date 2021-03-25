@@ -53,9 +53,9 @@ class Dataset(object):
 
     def get_train_data(self, rate=1):
         if rate == 1:
-        data = self._train
+            data = self._train
         else:
-        _, data = train_test_split(self._train, test_size=rate)
+            _, data = train_test_split(self._train, test_size=rate)
         data = data.merge(self._user_input, left_on='user_id', right_on='user_id')
         data = data.merge(self._item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
         return data['data_user'], data['data_item'], data['rating']
