@@ -2,12 +2,16 @@ from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout
 from tensorflow.keras import Model
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.callbacks import ModelCheckpoint
 from functools import reduce
 from pandas import Series
 # import matplotlib.pyplot as plt
 class CFs():
     def __init__(self):
         self.model = None
+        self.cp_callback = ModelCheckpoint(filepath='training_1/cp.ckpt',
+                                                 save_weights_only=True,
+                                                 verbose=1)
 
     def model_info(self):
         if self.model:
@@ -15,10 +19,12 @@ class CFs():
             return plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10, verbose=1):
-        self.model.fit(inputs, label, epochs=epochs, verbose=verbose)
+        self.model.fit(inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback])
         # Series(history.history['loss']).plot(logy=False)
         # plt.xlabel("Epoch")
         # plt.ylabel("Training Error")
+    def load(self):
+        self.model.load_weights('training_1/cp.ckpt')
 
     def test(self, inputs, label):
         self.model.evaluate(inputs, label, batch_size=1)
