@@ -28,7 +28,7 @@ class Dataset(object):
           lst = df[df['user_id'] == uid].i_cat.to_list()
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.user_id.apply(prepare, args=(self._train, n_i))
-        self._user_input = data
+        self.user_input = data
         self._train = self._train.drop(columns = ['i_cat'])
 
     def prepare_item_input(self):
@@ -39,7 +39,7 @@ class Dataset(object):
           lst = df[df['item_id'] == uid].u_cat.to_list()
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.item_id.apply(prepare, args=(self._train, n_u))
-        self._item_input = data
+        self.item_input = data
         self._train = self._train.drop(columns = ['u_cat'])
 
 
@@ -57,6 +57,6 @@ class Dataset(object):
         else:
             _, data = train_test_split(self._train, test_size=rate)
         del _
-        data = data.merge(self._user_input, left_on='user_id', right_on='user_id')
-        data = data.merge(self._item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
+        data = data.merge(self.user_input, left_on='user_id', right_on='user_id')
+        data = data.merge(self.item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
         return data['data_user'], data['data_item'], data['rating']
