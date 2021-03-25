@@ -29,7 +29,7 @@ class Dataset(object):
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.user_id.apply(prepare, args=(self._train, n_i))
         self._user_input = data
-        self._train.drop(columns = ['i_cat'])
+        self._train = self._train.drop(columns = ['i_cat'])
 
     def prepare_item_input(self):
         self._train['u_cat'] = self._train.user_id.astype('category').cat.codes.values
@@ -40,7 +40,7 @@ class Dataset(object):
           return np.array([1 if _ in lst else 0 for _ in range(n)])
         data['data'] = data.item_id.apply(prepare, args=(self._train, n_u))
         self._item_input = data
-        self._train.drop(columns = ['u_cat'])
+        self._train = self._train.drop(columns = ['u_cat'])
 
 
     def prepare_train_test(self, by_last_rate=True, test_rate=None):
