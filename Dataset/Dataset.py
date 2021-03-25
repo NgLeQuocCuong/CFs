@@ -51,14 +51,11 @@ class Dataset(object):
             self._test = self.dataset[self.dataset.groupby('user_id').timestamp.transform(max) == self.dataset['timestamp']]
         self.dataset = None
 
-    def get_trainset(self):
-        return self._train
-
-    def get_testset(self):
-        return self._test
-
-    def get_dataset(self):
-        return self.dataset
-
-    def get_train_label(self):
-        return self._train['rating'].to_numpy()
+    def get_train_data(self, rate=1):
+        if rate == 1:
+        data = self._train
+        else:
+        _, data = train_test_split(self._train, test_size=rate)
+        data = data.merge(self._user_input, left_on='user_id', right_on='user_id')
+        data = data.merge(self._item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
+        return data['data_user'], data['data_item'], data['rating']
