@@ -4,7 +4,7 @@ from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.utils import plot_model
 from functools import reduce
 from pandas import Series
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 class CFs():
     def __init__(self):
         self.model = None
@@ -15,10 +15,10 @@ class CFs():
             return plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10, verbose=1):
-        history = self.model.fit(inputs, label, epochs=epochs, verbose=verbose)
-        Series(history.history['loss']).plot(logy=False)
-        plt.xlabel("Epoch")
-        plt.ylabel("Training Error")
+        self.model.fit(inputs, label, epochs=epochs, verbose=verbose)
+        # Series(history.history['loss']).plot(logy=False)
+        # plt.xlabel("Epoch")
+        # plt.ylabel("Training Error")
 
     def test(self, inputs, label):
         self.model.evaluate(inputs, label, batch_size=1)
