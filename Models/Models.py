@@ -14,8 +14,8 @@ class CFs():
             self.model.summary()
             return plot_model(self.model, to_file='model.png')
 
-    def fit(self, inputs, label, epochs=10):
-        history = self.model.fit(inputs, label, epochs=epochs, verbose=1)
+    def fit(self, inputs, label, epochs=10, verbose=1):
+        history = self.model.fit(inputs, label, epochs=epochs, verbose=verbose)
         Series(history.history['loss']).plot(logy=False)
         plt.xlabel("Epoch")
         plt.ylabel("Training Error")
