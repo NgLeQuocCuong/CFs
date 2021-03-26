@@ -39,7 +39,7 @@ class CFs():
 
 class DeepCF(CFs):
     def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
-        self.backup_path = f'training/deepcf_{hash(representation_layers)}_{hash([embedding_size]+matching_layers)}/backup.ckpt'
+        self.backup_path = f'training/deepcf_{str(representation_layers)}_{str([embedding_size]+matching_layers)}/backup.ckpt'
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path, save_weights_only=True, verbose=0)
         inputs = self._create_inputs(user_size, item_size)
         representation_model = self._create_representation_model(inputs, representation_layers, activation)
