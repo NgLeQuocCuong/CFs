@@ -42,6 +42,13 @@ class Dataset(object):
         self.item_input = data
         self._train = self._train.drop(columns = ['u_cat'])
 
+    def load_item_data(self, filename):
+        self.item_input = read_csv(filename)
+        self.item_input.data = self.item_input.data.apply(lambda x: x.split())
+
+    def load_user_data(self, filename):
+        self.user_input = read_csv(filename)
+        self.user_input.data = self.user_input.data.apply(lambda x: x.split())
 
     def prepare_train_test(self, by_last_rate=True, test_rate=None):
         if test_rate:
