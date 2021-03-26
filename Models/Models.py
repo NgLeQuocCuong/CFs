@@ -9,7 +9,6 @@ class CFs():
     backup_path = 'training/backup.ckpt'
 
     def __init__(self):
-        self.fit_count = 0
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path,
                                                  save_weights_only=True,
                                                  verbose=1)
@@ -20,8 +19,6 @@ class CFs():
             return plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10, verbose=1):
-        self.fit_count += 1
-        print(f'Fit {self.fit_count}th time')
         self.model.fit(inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback])
     
     def load(self):
@@ -42,7 +39,6 @@ class CFs():
 
 class DeepCF(CFs):
     def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
-        self.fit_count = 0
         self.backup_path = f'training/deepcf_{str(representation_layers)}_{str([embedding_size]+matching_layers)}/backup.ckpt'
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path, save_weights_only=True, verbose=0)
         inputs = self._create_inputs(user_size, item_size)
