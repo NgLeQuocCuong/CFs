@@ -5,11 +5,11 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.callbacks import ModelCheckpoint
 from functools import reduce
 from pandas import Series
-# import matplotlib.pyplot as plt
 class CFs():
     def __init__(self):
         self.model = None
-        self.cp_callback = ModelCheckpoint(filepath='training_1/cp.ckpt',
+        self.backup_path = 'training/backup.ckpt'
+        self.cp_callback = ModelCheckpoint(filepath=self.backup_path,
                                                  save_weights_only=True,
                                                  verbose=1)
 
@@ -20,9 +20,7 @@ class CFs():
 
     def fit(self, inputs, label, epochs=10, verbose=1):
         self.model.fit(inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback])
-        # Series(history.history['loss']).plot(logy=False)
-        # plt.xlabel("Epoch")
-        # plt.ylabel("Training Error")
+    
     def load(self):
         self.model.load_weights('training_1/cp.ckpt')
 
@@ -40,7 +38,9 @@ class CFs():
 
 
 class DeepCF(CFs):
-    def create_model(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
+    def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
+        self.backup_path = f'training/deepcf_{hash(representation_layers)}_{hash([embedding_size]+matching_layers)}/backup.ckpt'
+        self.cp_callback = ModelCheckpoint(filepath=self.backup_path, save_weights_only=True, verbose=0)
         inputs = self._create_inputs(user_size, item_size)
         representation_model = self._create_representation_model(inputs, representation_layers, activation)
         matchingfunction_model = self._create_matchingfunction_model(inputs, embedding_size,  matching_layers, activation)
