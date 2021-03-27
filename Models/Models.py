@@ -6,9 +6,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from functools import reduce
 from pandas import Series
 class CFs():
-    backup_path = 'training/backup.ckpt'
-
     def __init__(self):
+        self.backup_path = 'training/backup.ckpt'
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path,
                                                  save_weights_only=True,
                                                  verbose=1)
