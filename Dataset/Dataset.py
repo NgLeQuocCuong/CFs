@@ -67,3 +67,9 @@ class Dataset(object):
         data = data.merge(self.user_input, left_on='user_id', right_on='user_id')
         data = data.merge(self.item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
         return data['data_user'], data['data_item'], data['rating']
+
+    def get_test_data(self):
+        data = self._test
+        data = data.merge(self.user_input, left_on='user_id', right_on='user_id')
+        data = data.merge(self.item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
+        return data['data_user'], data['data_item'], data['rating']
