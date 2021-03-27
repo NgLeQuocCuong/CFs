@@ -21,7 +21,7 @@ class CFs():
         self.model.fit(inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback])
     
     def load(self):
-        self.model.load_weights('training_1/cp.ckpt')
+        self.model.load_weights(self.backup_path)
 
     def test(self, inputs, label):
         self.model.evaluate(inputs, label, batch_size=1)
