@@ -68,8 +68,8 @@ class Dataset(object):
         data = data.merge(self.item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
         return data['data_user'], data['data_item'], data['rating']
 
-    def get_test_data(self):
-        data = self._test
+    def get_test_data(self, part=0):
+        data = self._test.iloc[len(self._test)//2+1:,:] if part == 1 else self._test.iloc[:len(self._test)//2,:]
         data = data.merge(self.user_input, left_on='user_id', right_on='user_id')
         data = data.merge(self.item_input, left_on='item_id', right_on='item_id', suffixes=('_user', '_item'))
         return data['data_user'], data['data_item'], data['rating']
