@@ -38,8 +38,8 @@ class CFs():
 
 class DeepCF(CFs):
     def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
-        joinlst = lambda x: ''.join([str(_) for _ in x])
-        self.backup_path = f'./training/deepcf_{joinlst(representation_layers)}_{joinlst([embedding_size]+matching_layers)}.ckpt'
+        joinlst = lambda x: '_'.join([str(_) for _ in x])
+        self.backup_path = f'./training/deepcf__{joinlst(representation_layers)}__{joinlst([embedding_size]+matching_layers)}.ckpt'
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path, save_weights_only=True, verbose=0)
         inputs = self._create_inputs(user_size, item_size)
         representation_model = self._create_representation_model(inputs, representation_layers, activation)
