@@ -53,7 +53,7 @@ class DeepCF(CFs):
             inputs, embedding_size,  matching_layers, activation)
         fusion_layer = Concatenate()(
             [representation_model, matchingfunction_model])
-        output = Dense(1, activation='sigmod')(fusion_layer)
+        output = Dense(1, activation='sigmoid')(fusion_layer)
         self.model = Model(inputs, output, name='DeepCF')
         self.model.compile(optimizer='adam', loss=BinaryCrossentropy(),
                            metrics=[RootMeanSquaredError()])
