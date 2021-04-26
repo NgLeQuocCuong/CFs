@@ -1,16 +1,19 @@
-from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout, Layer
 from tensorflow.keras import Model
+from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout, Layer
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.losses import BinaryCrossentropy
 from functools import reduce
 from pandas import Series
+
+
 class CFs():
     def __init__(self):
         self.backup_path = 'training/backup.ckpt'
         self.cp_callback = ModelCheckpoint(filepath=self.backup_path,
-                                                 save_weights_only=True,
-                                                 verbose=1)
+                                           save_weights_only=True,
+                                           verbose=1)
 
     def model_info(self):
         if self.model:
@@ -18,8 +21,9 @@ class CFs():
             return plot_model(self.model, to_file='model.png')
 
     def fit(self, inputs, label, epochs=10, verbose=1):
-        self.model.fit(inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback])
-    
+        self.model.fit(inputs, label, epochs=epochs,
+                       verbose=verbose, callbacks=[self.cp_callback])
+
     def load(self):
         self.model.load_weights(self.backup_path)
 
@@ -33,31 +37,38 @@ class CFs():
 
     def _create_mlp(self, input, layers_size=[], dropout=0, activation='relu'):
         layers = [Dense(size, activation=activation) for size in layers_size]
-        return reduce(lambda last, current: Dropout(dropout)(current(last)) if dropout else current(last) , layers, input)
+        return reduce(lambda last, current: Dropout(dropout)(current(last)) if dropout else current(last), layers, input)
 
 
 class DeepCF(CFs):
-    def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers = [32], activation='relu'):
-        joinlst = lambda x: '_'.join([str(_) for _ in x])
+    def __init__(self, user_size=100, item_size=100, representation_layers=[], embedding_size=16, matching_layers=[32], activation='relu'):
+        def joinlst(x): return '_'.join([str(_) for _ in x])
         self.backup_path = f'./training/deepcf__{joinlst(representation_layers)}__{joinlst([embedding_size]+matching_layers)}/mdl.ckpt'
-        self.cp_callback = ModelCheckpoint(filepath=self.backup_path, save_weights_only=True, verbose=0)
+        self.cp_callback = ModelCheckpoint(
+            filepath=self.backup_path, save_weights_only=True, verbose=0)
         inputs = self._create_inputs(user_size, item_size)
-        representation_model = self._create_representation_model(inputs, representation_layers, activation)
-        matchingfunction_model = self._create_matchingfunction_model(inputs, embedding_size,  matching_layers, activation)
-        fusion_layer = Concatenate()([representation_model, matchingfunction_model])
-        output = Dense(1, activation=activation)(fusion_layer)
+        representation_model = self._create_representation_model(
+            inputs, representation_layers, activation)
+        matchingfunction_model = self._create_matchingfunction_model(
+            inputs, embedding_size,  matching_layers, activation)
+        fusion_layer = Concatenate()(
+            [representation_model, matchingfunction_model])
+        output = Dense(1, activation='sigmod')(fusion_layer)
         self.model = Model(inputs, output, name='DeepCF')
-        self.model.compile(optimizer='adam', loss='mse', metrics=[RootMeanSquaredError()])
-        
+        self.model.compile(optimizer='adam', loss=BinaryCrossentropy(),
+                           metrics=[RootMeanSquaredError()])
+
     def _create_representation_model(self, inputs, representation_layers, activation='relu'):
-        user_latent_factor = self._create_mlp(inputs[0], representation_layers, dropout=0.1)
-        item_latent_factor = self._create_mlp(inputs[1], representation_layers, dropout=0.1)
+        user_latent_factor = self._create_mlp(
+            inputs[0], representation_layers, dropout=0.1)
+        item_latent_factor = self._create_mlp(
+            inputs[1], representation_layers, dropout=0.1)
         return Multiply()([user_latent_factor, item_latent_factor])
 
-    def _create_matchingfunction_model(self, inputs, embedding_size=16, matching_layers = [32], activation='relu'):
-        user_latent_factor = Dense(embedding_size, activation=activation)(inputs[0])
-        item_latent_factor = Dense(embedding_size, activation=activation)(inputs[1])
+    def _create_matchingfunction_model(self, inputs, embedding_size=16, matching_layers=[32], activation='relu'):
+        user_latent_factor = Dense(
+            embedding_size, activation=activation)(inputs[0])
+        item_latent_factor = Dense(
+            embedding_size, activation=activation)(inputs[1])
         concat = Concatenate()([user_latent_factor, item_latent_factor])
         return self._create_mlp(concat, matching_layers, dropout=0.1)
-
-
