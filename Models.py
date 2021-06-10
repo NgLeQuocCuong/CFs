@@ -1,5 +1,5 @@
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout, Layer
+from tensorflow.keras.layers import Input, Multiply, Dense, Concatenate, Dropout, GRU, Dot, Activation
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -72,3 +72,24 @@ class DeepCF(CFs):
             embedding_size, activation=activation)(inputs[1])
         concat = Concatenate()([user_latent_factor, item_latent_factor])
         return self._create_mlp(concat, matching_layers, dropout=0.1)
+
+
+class ZeroShot(CFs):
+    def __init__(self, size1=512, size2=128):
+        self.backup_path = f'./training/zeroshot__{size1}__{size2}/mdl.ckpt'
+        self.cp_callback = ModelCheckpoint(
+            filepath=self.backup_path, save_weights_only=True, verbose=0)
+        user_input = Input(shape=(20, 768))
+        item_input = Input(shape=(768))
+        self.inputs = [user_input, item_input]
+        layer1 = Dense(size1, activation='relu')
+        layer2 = Dense(size2, activation='relu')
+        self.layers = [layer1, layer2]
+        self.gru = GRU(size2)
+        user_present = self.gru(layer2(layer1(user_input)))
+        item_present = layer2(layer1(item_input))
+        output = Activation(activation='sigmoid')(
+            Dot(axes=1)([user_present, item_present]))
+        self.model = Model(self.inputs, output, name='ZeroShot')
+        self.model.compile(optimizer='adam', loss=BinaryCrossentropy(),
+                           metrics=[RootMeanSquaredError()])
