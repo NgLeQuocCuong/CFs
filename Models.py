@@ -134,11 +134,12 @@ class ZeroShot(CFs):
             metrics=[RootMeanSquaredError()],
         )
         self._update_models()
+        self._gen_score_layer(size2)
 
     def _update_models(self):
         item_function = self.layers[1](self.layers[0](self.inputs[1]))
         self.item_model = Model(self.inputs[1], item_function)
-        print(self.gru.weight)
+        print(self.gru.weights)
 
     def load(self):
         super().load()
@@ -147,3 +148,26 @@ class ZeroShot(CFs):
     def fit(self, inputs, label, epochs=10, verbose=1):
         super().fit(inputs, label, epochs, verbose)
         self._update_models()
+
+    def _update_models(self):
+        item_function = self.layers[1](self.layers[0](self.inputs[1]))
+        self.item_model = Model(self.inputs[1], item_function)
+        user_function = self.gru(self.layers[1](self.layers[0](self.inputs[0])))
+        self.user_model = Model(self.inputs[0], user_function)
+
+    def _gen_score_layer(self, size):
+        input = [Input(shape=(size)), Input(shape=(size))]
+        output = Activation(activation="sigmoid")(Dot(axes=1)(input))
+        self.score_layer = Model(input, output)
+
+    def predict(self, user_data, item_data):
+        user_vec = self._embed_user(user_data.reshape(1, 20, 768))
+        item_vec = self._embed_item(item_data)
+        user_vec = np.repeat(user_vec, item_vec.shape[0], axis=0)
+        return self.score_layer.predict([user_vec, item_vec])
+
+    def _embed_item(self, item):
+        return self.item_model.predict(item)
+
+    def _embed_user(self, items):
+        return self.user_model.predict(items)
