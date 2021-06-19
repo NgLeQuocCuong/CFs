@@ -136,6 +136,14 @@ class ZeroShot(CFs):
         self._update_models()
 
     def _update_models(self):
-        item_function = self.layers[1](self.layers[0])
-        self.item_model = Model(self.inputs[1], item_function(self.inputs[1]))
+        item_function = self.layers[1](self.layers[0](self.inputs[1]))
+        self.item_model = Model(self.inputs[1], item_function)
         print(self.gru.weight)
+
+    def load(self):
+        super().load()
+        self._update_models()
+
+    def fit(self, inputs, label, epochs=10, verbose=1):
+        super().fit(inputs, label, epochs, verbose)
+        self._update_models()
