@@ -66,10 +66,10 @@ class DeepCF(CFs):
         matching_layers=[32],
         activation="relu",
     ):
-        def joinlst(x):
+        def joinLst(x):
             return "_".join([str(_) for _ in x])
 
-        self.backup_path = f"./training/deepcf__{joinlst(representation_layers)}__{joinlst([embedding_size]+matching_layers)}/mdl.ckpt"
+        self.backup_path = f"./training/deepcf__{joinLst(representation_layers)}__{joinLst([embedding_size]+matching_layers)}/mdl.ckpt"
         self.cp_callback = ModelCheckpoint(
             filepath=self.backup_path, save_weights_only=True, verbose=0
         )
@@ -171,3 +171,78 @@ class ZeroShot(CFs):
 
     def _embed_user(self, items):
         return self.user_model.predict(items)
+
+
+class BCFNet(CFs):
+    def __init__(
+        self,
+        user_size=100,
+        item_size=768,
+        representation_layers=[512, 256, 128, 64],
+        balance_size=128,
+        matching_layers=[512, 256, 128, 64],
+        activation="relu",
+    ):
+        def joinLst(x):
+            return "_".join([str(_) for _ in x])
+
+        self.backup_path = f"./training/bcfnet__{joinLst(representation_layers)}__{joinLst(matching_layers)}__{balance_size}/mdl.ckpt"
+        self.cp_callback = ModelCheckpoint(
+            filepath=self.backup_path, save_weights_only=True, verbose=0
+        )
+        inputs = self._create_inputs(user_size, item_size)
+        matchingfunction_model = self._create_matchingfunction_model(
+            inputs, matching_layers, activation
+        )
+        representation_model = self._create_representation_model(
+            inputs, representation_layers, activation
+        )
+        balance_layer = self._create_balance_model(inputs, balance_size)
+        fusion_layer = Concatenate()(
+            [representation_model, balance_layer, matchingfunction_model]
+        )
+        output = Dense(1, activation="sigmoid")(fusion_layer)
+        self.model = Model(inputs, output, name="DeepCF")
+        self.model.compile(
+            optimizer="adam",
+            loss=BinaryCrossentropy(),
+            metrics=[RootMeanSquaredError()],
+        )
+
+    def _attention(self, input):
+        attention = Dense(input.get_shape().as_list()[1], activation="softmax")(input)
+        return Concatenate()([input, attention])
+
+    def _create_balance_model(self, inputs, balance_size, activation="relu"):
+        user_embedding_factor = Dense(balance_size, activation=activation)(inputs[0])
+        item_embedding_factor = Dense(balance_size, activation=activation)(inputs[1])
+        return Multiply()([user_embedding_factor, item_embedding_factor])
+
+    def _create_representation_model(
+        self, inputs, representation_layers, activation="relu"
+    ):
+        # embedding input
+        embedding_size = representation_layers[0] // 2
+        user_embedding_factor = Dense(embedding_size, activation=activation)(inputs[0])
+        item_embedding_factor = Dense(embedding_size, activation=activation)(inputs[1])
+        # attentive_layers
+        attentive_user = self._attention(user_embedding_factor)
+        attentive_item = self._attention(item_embedding_factor)
+        # mlp
+        user_latent_factor = self._create_mlp(
+            attentive_user, representation_layers, dropout=0.1
+        )
+        item_latent_factor = self._create_mlp(
+            attentive_item, representation_layers, dropout=0.1
+        )
+        return Multiply()([user_latent_factor, item_latent_factor])
+
+    def _create_matchingfunction_model(
+        self, inputs, matching_layers=[32], activation="relu"
+    ):
+        embedding_size = matching_layers[0] // 4
+        user_embedding_factor = Dense(embedding_size, activation=activation)(inputs[0])
+        item_embedding_factor = Dense(embedding_size, activation=activation)(inputs[1])
+        concat = Concatenate()([user_embedding_factor, item_embedding_factor])
+        attentive_layer = self._attention(concat)
+        return self._create_mlp(attentive_layer, matching_layers, dropout=0.1)
