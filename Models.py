@@ -190,6 +190,7 @@ class BCFNet(CFs):
         self.cp_callback = ModelCheckpoint(
             filepath=self.backup_path, save_weights_only=True, verbose=0
         )
+        self.user_size = user_size
         inputs = self._create_inputs(user_size, item_size)
         matchingfunction_model = self._create_matchingfunction_model(
             inputs, matching_layers, activation
@@ -246,3 +247,9 @@ class BCFNet(CFs):
         concat = Concatenate()([user_embedding_factor, item_embedding_factor])
         attentive_layer = self._attention(concat)
         return self._create_mlp(attentive_layer, matching_layers, dropout=0.1)
+
+    def predict(self, user_data, item_data):
+        user_vec = np.repeat(
+            user_data.reshape(1, self.user_size), item_vec.shape[0], axis=0
+        )
+        return self.score_layer.predict([user_vec, item_data])
