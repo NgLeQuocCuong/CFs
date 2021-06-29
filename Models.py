@@ -15,6 +15,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.losses import BinaryCrossentropy
 from functools import reduce
 from pandas import Series
+import numpy as np
 
 
 class CFs:
