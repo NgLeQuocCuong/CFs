@@ -251,6 +251,6 @@ class BCFNet(CFs):
 
     def predict(self, user_data, item_data):
         user_vec = np.repeat(
-            user_data.reshape(1, self.user_size), item_vec.shape[0], axis=0
+            user_data.reshape(1, self.user_size), item_data.shape[0], axis=0
         )
-        return self.score_layer.predict([user_vec, item_data])
+        return self.model.predict([user_vec, item_data])
