@@ -35,8 +35,17 @@ class CFs:
             inputs, label, epochs=epochs, verbose=verbose, callbacks=[self.cp_callback]
         )
 
-    def load(self):
-        self.model.load_weights(self.backup_path)
+    def load(self, path=None):
+        if path == None:
+            self.model.load_weights(self.backup_path)
+        else:
+            self.model.load_weights(path)
+
+    def store(self, path=None):
+        if path == None:
+            self.model.save_weights(self.backup_path)
+        else:
+            self.model.save_weights(path)
 
     def test(self, inputs, label):
         self.model.evaluate(inputs, label, batch_size=1)
